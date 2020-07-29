@@ -2,7 +2,7 @@
 Script/container to load media information from Plex database into Elasticsearch
 
 This script provides an easy way to get your Plex metadata into Elasticsearch so you can build
-cool dashboards with Kibana or other tool of choice.
+cool dashboards with Kibana or other tool of choice.  It will only **read** from your database - it will never change it.
 
 ## Running directly
  Requires: `pipenv install -or- pip install elasticsearch`
@@ -24,7 +24,7 @@ python3 export-to-es.py http://192.168.2.61:9200  /volume1/Plex/Library/Applicat
           plex2es
 ```
  3. Run with: `docker run plex2es`
-    The container will stop when the job is finished
+    The container will stop when the job is finished. Use `docker logs -f plex2es` to see log output.
 
  Two indexes are added: "plex_movies" and "plex_tv".  Each time this script is run the indexes are removed and rebuilt.
 

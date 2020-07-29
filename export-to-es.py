@@ -19,8 +19,8 @@
 #          -v /PATH/TO/com.plexapp.plugins.library.db:/plex.db:ro \
 #          plex2es
 #
-# 3. Run with: docker run plex2es
-#    The container will stop when the job is finished
+# 3. Run with: docker start plex2es
+#    The container will stop when the job is finished. Use docker logs -f plex2es to see log output.
 #
 # Two indexes are added: "movies" and "tvshows".  Each time this script is run the indexes are removed and rebuilt.
 #

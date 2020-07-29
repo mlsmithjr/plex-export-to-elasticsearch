@@ -5,4 +5,4 @@ COPY export-to-es.py requirements.txt /app/
 RUN pip3 install -r /app/requirements.txt && chmod 777 /app/export-to-es.py
 VOLUME /data
 
-ENTRYPOINT ["/app/export-to-es.py"]
+ENTRYPOINT ["/usr/local/bin/python3", "/app/export-to-es.py"]
