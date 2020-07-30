@@ -35,6 +35,8 @@ This may even be installed along side existing elastic or kibana containers sinc
 will share a custom network.  As long as the names don't conflict the containers will only see
 each other.
 
+There is a starter Kibana set of visualizations and 1 dashboard in kibana-samples.ndjson.  Just import it into your Kibana after setting up your index.
+
 ```yaml
 version: '2.2'
 services:
