@@ -89,6 +89,8 @@ def export_movies(es: Elasticsearch, con: sqlite3.dbapi2):
     for row in cur.execute(s).fetchall():
         rec = dict(row)
         #print(rec['id'], rec['title'])
+        rec['height'] = str(rec['height'])
+        rec['width'] = str(rec['width'])
         rec['tags_director'] = rec['tags_director'].split('|')
         rec['tags_writer'] = rec['tags_writer'].split('|')
         rec['tags_star'] = rec['tags_star'].split('|')
