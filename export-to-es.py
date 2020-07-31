@@ -141,6 +141,7 @@ def export_tv(es: Elasticsearch, con: sqlite3.dbapi2):
             episodes = [dict(ep) for ep in episodes]
             for ep in episodes:
                 ep['tags_writer'] = ep['tags_writer'].split('|')
+                ep['tags_director'] = ep['tags_director'].split('|')
             seasons.append({'season': season, 'duration': duration, 'size': size, 'episodes': episodes})
 
         rec['total_duration'] = t_duration
