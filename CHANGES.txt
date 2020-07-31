@@ -1,0 +1,7 @@
+
+2020-07-31:
+  - Schema change - Introduce a list of episodes for each 'season' element.
+  - Schema fix    - Moved writer and director fields to episodes and out of series element.
+  - Duration fields now represent minutes rather than milliseconds.
+
+

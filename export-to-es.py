@@ -50,19 +50,29 @@ movie_sql = [
 
 series_sql = [
     "select  mdata.id, sections.name, mdata.metadata_type, mdata.title, mdata.studio, mdata.content_rating,",
-    "        mdata.tags_genre, mdata.tags_director, mdata.tags_writer, mdata.originally_available_at ",
+    "        mdata.tags_genre, mdata.originally_available_at ",
     "from    library_sections as sections,",
     "        metadata_items as mdata",
     "where   mdata.library_section_id = sections.id",
     "and     mdata.metadata_type = '2'"
 ]
 
-episodes = [
+sql_episodes_count = [
     "select count()",
     "from metadata_items mi",
     "inner join metadata_items season on season.parent_id = mi.id",
     "inner join metadata_items episode on episode.parent_id = season.id",
     "where mi.metadata_type = '2'",
+    "and   mi.id=?"
+]
+
+sql_episodes = [
+    'select episode."index", episode.title, episode.tags_director, episode.tags_writer',
+    "from metadata_items mi",
+    "inner join metadata_items season on season.parent_id = mi.id",
+    "inner join metadata_items episode on episode.parent_id = season.id",
+    "where mi.metadata_type = '2'",
+    'and   season."index"=?'
     "and   mi.id=?"
 ]
 
@@ -74,6 +84,7 @@ season_counts = [
     "where mi.metadata_type = '2'",
     'and mi.id = ?',
     'and media.metadata_item_id = episode.id',
+    'and season."index" != 0',
     'group by season'
 ]
 
@@ -95,6 +106,8 @@ def export_movies(es: Elasticsearch, con: sqlite3.dbapi2):
         rec['tags_writer'] = rec['tags_writer'].split('|')
         rec['tags_star'] = rec['tags_star'].split('|')
         rec['tags_genre'] = rec['tags_genre'].split('|')
+        duration = floor(row['duration'] / 1000 / 60) / 60
+        row['duration'] = duration
         rec['year'] = str(rec['year'])
         es.create(MOVIE_INDEX_NAME, rec['id'], rec)
 
@@ -110,7 +123,7 @@ def export_tv(es: Elasticsearch, con: sqlite3.dbapi2):
     for row in cur.execute(s).fetchall():
         rec = dict(row)
         mi = rec['id']
-        count = cur.execute(' '.join(episodes), (mi,)).fetchone()
+        count = cur.execute(' '.join(sql_episodes_count), (mi,)).fetchone()
         rec['episodes'] = int(count[0])
         rec['tags_genre'] = rec['tags_genre'].split('|')
         seasons = list()
@@ -124,7 +137,12 @@ def export_tv(es: Elasticsearch, con: sqlite3.dbapi2):
             size = floor(row['size'] / 1000 / 1000)
             t_duration += duration
             t_size += size
-            seasons.append({'season': season, 'duration': duration, 'size': size})
+            episodes = cur.execute(' '.join(sql_episodes), (season+1, mi)).fetchall()
+            episodes = [dict(ep) for ep in episodes]
+            for ep in episodes:
+                ep['tags_writer'] = ep['tags_writer'].split('|')
+            seasons.append({'season': season, 'duration': duration, 'size': size, 'episodes': episodes})
+
         rec['total_duration'] = t_duration
         rec['total_size'] = t_size
         es.create(TV_INDEX_NAME, rec['id'], rec)
@@ -148,6 +166,6 @@ if __name__ == '__main__':
 
     es = Elasticsearch([es_url])
     con = sqlite3.connect(plex_db)
-    export_movies(es, con)
+    #export_movies(es, con)
     export_tv(es, con)
     print("done.")
