@@ -106,8 +106,9 @@ def export_movies(es: Elasticsearch, con: sqlite3.dbapi2):
         rec['tags_writer'] = rec['tags_writer'].split('|')
         rec['tags_star'] = rec['tags_star'].split('|')
         rec['tags_genre'] = rec['tags_genre'].split('|')
-        duration = floor(row['duration'] / 1000 / 60) / 60
-        row['duration'] = duration
+        if 'duration' in row and row['duration'] is not None:
+            duration = floor(row['duration'] / 1000 / 60) / 60
+            rec['duration'] = duration
         rec['year'] = str(rec['year'])
         es.create(MOVIE_INDEX_NAME, rec['id'], rec)
 
@@ -167,6 +168,6 @@ if __name__ == '__main__':
 
     es = Elasticsearch([es_url])
     con = sqlite3.connect(plex_db)
-    #export_movies(es, con)
+    export_movies(es, con)
     export_tv(es, con)
     print("done.")
